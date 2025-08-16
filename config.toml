@@ -1,0 +1,100 @@
+# requirements.txt
+streamlit>=1.28.0
+pandas>=2.0.0
+plotly>=5.15.0
+sqlite3  # Já vem com Python
+numpy>=1.24.0
+
+# .streamlit/config.toml
+[server]
+headless = true
+port = 8501
+address = "0.0.0.0"
+maxUploadSize = 200
+
+[browser]
+gatherUsageStats = false
+
+[theme]
+primaryColor = "#667eea"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+
+# Dockerfile (opcional, para Docker)
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8501
+
+HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
+
+ENTRYPOINT ["streamlit", "run", "dashboard.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
+# .gitignore
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Não ignorar o banco de dados para deploy
+# trendx_bot.db  # COMENTAR ESTA LINHA para incluir o DB no deploy
+
+# Ambiente virtual
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# app.py (arquivo alternativo para algumas plataformas)
+import streamlit as st
+import subprocess
+import sys
+
+# Instalar dependências se necessário
+try:
+    import pandas
+    import plotly
+except ImportError:
+    st.info("Instalando dependências...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+    st.rerun()
+
+# Executar o dashboard
+if __name__ == "__main__":
+    exec(open("dashboard.py").read())
